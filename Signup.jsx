@@ -17,23 +17,21 @@ import {
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
-import { User } from '../../Context/User';
 
-function Login() {
-  const {setLoggedUser} = React.useContext(User);
+function Signup() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const firstField = React.useRef();
+  const toast = useToast();
   const [show, setShow] = React.useState(false);
   const handleClick = () => setShow(!show);
-  const toast = useToast();
-
+  const [name, setName] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
 
-  const handleLogin = () => {
+  const handleSignUp = () => {
     let bookingUsers = JSON.parse(localStorage.getItem('bookingUsers')) || [];
     switch (true) {
-      case !email || !password: {
+      case !name || !email || !password: {
         toast({
           position: 'top',
           title: 'Please fill in all fields',
@@ -44,34 +42,36 @@ function Login() {
         break;
       }
       default:
-        let check = bookingUsers.find(
-          user => user.email === email && user.password === password
-        );
+        let body = { name, email, password };
+        let check = bookingUsers.find(user => user.email === email);
         switch (true) {
           case check === undefined: {
+            bookingUsers.push(body);
+            localStorage.setItem('bookingUsers', JSON.stringify(bookingUsers));
+            onClose();
             toast({
               position: 'top',
-              title: 'Email or password is incorrect',
+              title: 'Account created successfully',
+              description: 'You can now log in',
+              status: 'success',
+              duration: 2000,
+              isClosable: true,
+            });
+            setEmail("");
+            setName("");
+            setPassword("");
+            break;
+          }
+          default: {
+            toast({
+              position: 'top',
+              title: 'Account already exists',
               status: 'error',
               duration: 2000,
               isClosable: true,
             });
             break;
           }
-          default:
-            localStorage.setItem('loggedUserBooking', JSON.stringify(check));
-            onClose();
-            toast({
-              position: 'top',
-              title: 'You have successfully logged in',
-              status: 'success',
-              duration: 2000,
-              isClosable: true,
-            });
-            setLoggedUser(check);
-            setEmail('');
-            setPassword('');
-            break;
         }
         break;
     }
@@ -79,7 +79,7 @@ function Login() {
   return (
     <>
       <Button color="black" variant="link" onClick={onOpen}>
-        LOGIN
+        SIGN UP
       </Button>
       <Drawer
         isOpen={isOpen}
@@ -92,21 +92,31 @@ function Login() {
         <DrawerContent>
           <DrawerCloseButton />
           <DrawerHeader borderBottomWidth="1px">
-            Login to your account
+            Create a new account
           </DrawerHeader>
 
           <DrawerBody>
             <Stack spacing="24px">
               <Box>
+                <FormLabel htmlFor="name">Name</FormLabel>
+                <Input
+                  ref={firstField}
+                  id="name"
+                  placeholder="Enter full name"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                />
+              </Box>
+
+              <Box>
                 <FormLabel htmlFor="email">Email</FormLabel>
                 <InputGroup>
                   <Input
-                    ref={firstField}
                     type="email"
                     id="email"
                     placeholder="Enter email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={e => setEmail(e.target.value)}
                   />
                 </InputGroup>
               </Box>
@@ -119,7 +129,7 @@ function Login() {
                     type={show ? 'text' : 'password'}
                     placeholder="Enter password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={e => setPassword(e.target.value)}
                   />
                   <InputRightElement width="4.5rem">
                     <Button h="1.75rem" size="sm" onClick={handleClick}>
@@ -135,7 +145,14 @@ function Login() {
             <Button variant="outline" mr={3} onClick={onClose}>
               Cancel
             </Button>
-            <Button colorScheme="blue" onClick={()=>{handleLogin()}}>Login</Button>
+            <Button
+              colorScheme="blue"
+              onClick={() => {
+                handleSignUp();
+              }}
+            >
+              Sign up
+            </Button>
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
@@ -143,4 +160,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Signup;

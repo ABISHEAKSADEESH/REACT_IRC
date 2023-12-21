@@ -1,20 +1,19 @@
-import React, { useState } from "react";
-import './App.css';
-import { Login } from "./Login";
-import { Register } from "./Register";
+import React from 'react';
+import Navbar from './Components/Navbar/Navbar';
+import {Routes, Route} from 'react-router-dom';
+import Booking from './Components/Booking/Booking';
+import Footer from './Components/Foter/Footer';
 
 function App() {
-  const [currentForm, setCurrentForm] = useState('login');
-
-  const toggleForm = (formName) => {
-    setCurrentForm(formName);
-  }
-
   return (
-    <div className="App">
-      {
-        currentForm === "login" ? <Login onFormSwitch={toggleForm} /> : <Register onFormSwitch={toggleForm} />
-      }
+    // <div style={{backgroundColor:"#EEE", height:'100vh'}}>
+    <div>
+    <Navbar />
+    <Routes>
+      <Route path="/" element={<Booking />} />
+      <Route path="*" element={<Booking />} />
+    </Routes>
+    <Footer/>
     </div>
   );
 }
